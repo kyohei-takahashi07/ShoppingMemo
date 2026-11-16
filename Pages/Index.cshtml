@@ -1,0 +1,32 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">買い物メモ</h1>
+    <ul>
+        @foreach(var item in Model.Items)
+        {
+            <li> @item.Name
+    <form method="post" asp-page-handler="Delete" asp-route-id="@item.Id">
+        <button type="submit">削除</button>
+    </form><form method="post" asp-page-handler="Update" asp-route-id="@item.Id">
+    <label>
+        買うものの名前
+        <input name="itemName" value="@item.Name" required>
+    </label>
+    <button type="submit">更新</button>
+</form></li>
+        }
+    </ul>
+    <form method="post">
+    <label for="itemName">買うもの</label>
+    <input id="itemName" name="itemName" required>
+    <button type="submit">送信</button>
+</form>
+
+<p>@Model.ReceivedItem</p>
+    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+</div>
