@@ -4,3 +4,4 @@ obj/
 shopping.db
 shopping.db-shm
 shopping.db-wal
+.env

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using MySqlConnector;
 
 namespace ShoppingMemo.Pages;
 
@@ -17,15 +18,16 @@ public void OnPost(string? itemName)
         return;
     }
 
-    var environment = HttpContext.RequestServices.GetRequiredService<IWebHostEnvironment>();
-    var databasePath = Path.Combine(environment.ContentRootPath, "shopping.db");
+    var connectionString = HttpContext.RequestServices
+        .GetRequiredService<IConfiguration>()
+        .GetConnectionString("ShoppingMemo");
 
-    using var connection = new Microsoft.Data.Sqlite.SqliteConnection($"Data Source={databasePath}");
+    using var connection = new MySqlConnection(connectionString);
     connection.Open();
 
     using var command = connection.CreateCommand();
-    command.CommandText = "INSERT INTO ShoppingItems (Name) VALUES ($name)";
-    command.Parameters.AddWithValue("$name", itemName.Trim());
+    command.CommandText = "INSERT INTO ShoppingItems (Name) VALUES (@name)";
+    command.Parameters.AddWithValue("@name", itemName.Trim());
     command.ExecuteNonQuery();
 
     ReceivedItem = $"{itemName.Trim()}を保存しました。";
@@ -38,15 +40,16 @@ public void OnPost(string? itemName)
 }
 public IActionResult OnPostDelete(long id)
 {
-    var environment = HttpContext.RequestServices.GetRequiredService<IWebHostEnvironment>();
-    var databasePath = Path.Combine(environment.ContentRootPath, "shopping.db");
+    var connectionString = HttpContext.RequestServices
+        .GetRequiredService<IConfiguration>()
+        .GetConnectionString("ShoppingMemo");
 
-    using var connection = new Microsoft.Data.Sqlite.SqliteConnection($"Data Source={databasePath}");
+    using var connection = new MySqlConnection(connectionString);
     connection.Open();
 
     using var command = connection.CreateCommand();
-    command.CommandText = "DELETE FROM ShoppingItems WHERE Id = $id";
-    command.Parameters.AddWithValue("$id", id);
+    command.CommandText = "DELETE FROM ShoppingItems WHERE Id = @id";
+    command.Parameters.AddWithValue("@id", id);
     command.ExecuteNonQuery();
 
     return RedirectToPage();
@@ -59,16 +62,17 @@ public IActionResult OnPostDelete(long id)
         return Page();
     }
 
-    var environment = HttpContext.RequestServices.GetRequiredService<IWebHostEnvironment>();
-    var databasePath = Path.Combine(environment.ContentRootPath, "shopping.db");
+    var connectionString = HttpContext.RequestServices
+        .GetRequiredService<IConfiguration>()
+        .GetConnectionString("ShoppingMemo");
 
-    using var connection = new Microsoft.Data.Sqlite.SqliteConnection($"Data Source={databasePath}");
+    using var connection = new MySqlConnection(connectionString);
     connection.Open();
 
     using var command = connection.CreateCommand();
-    command.CommandText = "UPDATE ShoppingItems SET Name = $name WHERE Id = $id";
-    command.Parameters.AddWithValue("$name", itemName.Trim());
-    command.Parameters.AddWithValue("$id", id);
+    command.CommandText = "UPDATE ShoppingItems SET Name = @name WHERE Id = @id";
+    command.Parameters.AddWithValue("@name", itemName.Trim());
+    command.Parameters.AddWithValue("@id", id);
     command.ExecuteNonQuery();
 
     return RedirectToPage();
@@ -76,10 +80,11 @@ public IActionResult OnPostDelete(long id)
 
 private void LoadItems()
 {
-    var environment = HttpContext.RequestServices.GetRequiredService<IWebHostEnvironment>();
-    var databasePath = Path.Combine(environment.ContentRootPath, "shopping.db");
+    var connectionString = HttpContext.RequestServices
+        .GetRequiredService<IConfiguration>()
+        .GetConnectionString("ShoppingMemo");
 
-    using var connection = new Microsoft.Data.Sqlite.SqliteConnection($"Data Source={databasePath}");
+    using var connection = new MySqlConnection(connectionString);
     connection.Open();
 
     using var command = connection.CreateCommand();

@@ -1,23 +1,28 @@
+using MySqlConnector;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
 
 var app = builder.Build();
-SQLitePCL.Batteries_V2.Init();
 
-var databasePath = Path.Combine(app.Environment.ContentRootPath, "shopping.db");
-using (var connection = new Microsoft.Data.Sqlite.SqliteConnection($"Data Source={databasePath}"))
+
+
+
+var connectionString = app.Configuration.GetConnectionString("ShoppingMemo");
+
+using (var connection = new MySqlConnection(connectionString))
 {
     connection.Open();
 
-    using var command = connection.CreateCommand();
-    command.CommandText = """
+    var sql = @"
         CREATE TABLE IF NOT EXISTS ShoppingItems (
-            Id INTEGER PRIMARY KEY,
+            Id INT AUTO_INCREMENT PRIMARY KEY,
             Name TEXT NOT NULL
         );
-        """;
+    ";
+
+    using var command = new MySqlCommand(sql, connection);
     command.ExecuteNonQuery();
 }
 
